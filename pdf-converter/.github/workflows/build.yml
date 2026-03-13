@@ -1,0 +1,48 @@
+name: Windows EXE Derle
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Kodu indir
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Bağımlılıkları kur
+        run: |
+          pip install --upgrade pip
+          pip install pillow reportlab python-docx pandas openpyxl weasyprint tkinterdnd2 pyinstaller
+
+      - name: EXE derle
+        run: |
+          pyinstaller --onefile --windowed `
+            --name "PDF Donusturucu" `
+            --hidden-import PIL `
+            --hidden-import PIL._tkinter_finder `
+            --hidden-import reportlab `
+            --hidden-import reportlab.graphics `
+            --hidden-import docx `
+            --hidden-import pandas `
+            --hidden-import openpyxl `
+            --hidden-import weasyprint `
+            --hidden-import tkinterdnd2 `
+            --collect-all weasyprint `
+            --collect-all tkinterdnd2 `
+            pdf_converter.py
+
+      - name: EXE'yi kaydet (indir)
+        uses: actions/upload-artifact@v4
+        with:
+          name: PDF-Donusturucu-Windows
+          path: dist/PDF Donusturucu.exe
+          retention-days: 30
